@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Pipeline;
 
 namespace Testing
@@ -6,6 +7,15 @@ namespace Testing
     {
 
         TestService testService = new TestService();
+
+        private IConfiguration _config;
+
+        public UnitTest1()
+        {
+            _config = new ConfigurationBuilder()
+                .AddUserSecrets<UnitTest1>(true)
+                .Build();
+        }
 
         [Fact]
         public void PluralCheck_NotPlural()
@@ -28,6 +38,16 @@ namespace Testing
             List<Book> testBooks = testService.GetBooks();
 
             Assert.True(testBooks.Count() >= 1);
+        }
+
+        [Fact]
+        public void ConnectionStringIsNotEmpty()
+        {
+            String connectionString = _config["connectionString"];
+
+            Assert.NotNull(connectionString);
+            Assert.NotEmpty(connectionString);
+
         }
 
     }

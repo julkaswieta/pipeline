@@ -29,7 +29,9 @@ jobs:
       run: dotnet restore ./Pipeline/Pipeline/Pipeline.csproj
     
     - name: Install Dotnet Tools
-      run: dotnet tool install --global dotnet-coverage
+      run: |
+        dotnet tool install --global dotnet-ef
+        dotnet tool install --global dotnet-coverage
       
     - name: Cache SonarCloud packages
       uses: actions/cache@v4

@@ -7,7 +7,6 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-	<UserSecretsId>1f53b207-f3bf-4898-9c9d-38200698c3c4</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,7 +14,6 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="xunit" Version="2.5.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
-	<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

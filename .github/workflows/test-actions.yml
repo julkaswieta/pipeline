@@ -67,6 +67,8 @@ jobs:
       run: dotnet build ./Pipeline/Pipeline/Pipeline.csproj --no-restore --framework net8.0
 
     - name: Test
+      env:
+        ConnectionStrings__BooksDb: ${{ secrets.CONNECTION_STRING }}
       run: dotnet-coverage collect "dotnet test ./Pipeline/Pipeline.sln --framework net8.0" -f xml -o "coverage.xml"
 
     - name: End Sonar Analysis

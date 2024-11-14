@@ -20,7 +20,7 @@ jobs:
       uses: actions/setup-java@v4
       with:
         java-version: 17
-        distribution: 'zulu' # Alternative distribution options are available.
+        distribution: 'zulu'
 
     - name: Restore workloads
       run: dotnet workload restore ./Pipeline/Pipeline/Pipeline.csproj
@@ -75,5 +75,3 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-    
-    

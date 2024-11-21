@@ -22,5 +22,13 @@ namespace Testing
             Assert.Equal($"Clicked {count} times", testService.PluralChecker(count));
         }
 
+        [Fact]
+        public void GetBooks_ReturnsBooks()
+        {
+            List<Book> testBooks = testService.GetBooks();
+
+            Assert.True(testBooks.Count() >= 1);
+        }
+
     }
 }

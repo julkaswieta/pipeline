@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Configuration;
 
 namespace Pipeline
 {
@@ -26,25 +28,21 @@ namespace Pipeline
     }
 
     /**Database context for book database*/
-    class BookDb : DbContext
+    public class BookDb : DbContext
     {
-        static readonly string connectionString = "Server=localhost; User ID=root; Password=admin; Database=book";
-
         public DbSet<Book> Books { get; set; } = null!;
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Book>()
-            .HasData(
-                    new Book { Id = 1, Name = "The Very Hungry Caterpillar", Author="Eric Carle", Blurb = "A book about a caterpillar, I think." },
-                    new Book { Id = 2, Name = "The Witches", Author="Roald Dahl", Blurb = "A book about witches." },
-                    new Book { Id = 3, Name = "The Hobbit", Author="J.R.R Tolkien", Blurb = "A book about a hobbit." }
-            );
-        }
+        IConfigurationRoot config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: true)
+            .AddEnvironmentVariables()
+            .Build();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+            SqlServerDbContextOptionsBuilder contextOptionsBuilder = new SqlServerDbContextOptionsBuilder(optionsBuilder);
+            contextOptionsBuilder.EnableRetryOnFailure();
+            String connectionString = config.GetConnectionString("BooksDb");
+            optionsBuilder.UseSqlServer(connectionString);
         }
     }
 }

@@ -6,7 +6,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -20,13 +20,18 @@ jobs:
       uses: actions/setup-java@v4
       with:
         java-version: 17
-        distribution: 'zulu' # Alternative distribution options are available.
+        distribution: 'zulu'
 
     - name: Restore workloads
       run: dotnet workload restore ./Pipeline/Pipeline/Pipeline.csproj
 
     - name: Restore dependencies
       run: dotnet restore ./Pipeline/Pipeline/Pipeline.csproj
+    
+    - name: Install Dotnet Tools
+      run: |
+        dotnet tool install --global dotnet-ef
+        dotnet tool install --global dotnet-coverage
       
     - name: Cache SonarCloud packages
       uses: actions/cache@v4
@@ -50,12 +55,29 @@ jobs:
         cd ./Pipeline
         dotnet tool update dotnet-sonarscanner --tool-path ../.sonar/scanner
 
-    - name: Build and analyze
+    - name: Start Sonar Analysis
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
-        dotnet tool install --global dotnet-coverage
         ./.sonar/scanner/dotnet-sonarscanner begin /k:"set09102-test-07102024_pipeline" /o:"set09102-test-07102024" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.scanner.scanAll=false /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
-        dotnet build ./Pipeline/Pipeline/Pipeline.csproj --no-restore --framework net8.0
-        dotnet-coverage collect "dotnet test ./Pipeline/Pipeline.sln --framework net8.0" -f xml -o "coverage.xml"
-        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
+    - name: build
+      env:
+        ConnectionStrings__BooksDb: ${{ secrets.CONNECTION_STRING }}
+        Remote__Username: ${{ secrets.RemoteUsername }}
+        Remote__Password: ${{ secrets.RemotePassword }}
+        Remote__Server: "soc-app-liv-17.napier.ac.uk"
+      run: dotnet build ./Pipeline/Pipeline/Pipeline.csproj --no-restore --framework net8.0
+
+    - name: Test
+      env:
+        ConnectionStrings__BooksDb: ${{ secrets.CONNECTION_STRING }}
+        Remote__Username: ${{ secrets.RemoteUsername }}
+        Remote__Password: ${{ secrets.RemotePassword }}
+        Remote__Server: "soc-app-liv-17.napier.ac.uk"
+      run: dotnet-coverage collect "dotnet test ./Pipeline/Pipeline.sln --framework net8.0" -f xml -o "coverage.xml"
+
+    - name: End Sonar Analysis
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
